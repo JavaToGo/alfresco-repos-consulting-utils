@@ -1,0 +1,14 @@
+run.*
+.classpath
+target
+META-INF/
+config/
+lib/
+module.properties
+web/
+.settings
+.DS_Store
+.project
+*.log
+*.log.*
+alf_data_dev
