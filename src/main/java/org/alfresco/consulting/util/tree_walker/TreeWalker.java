@@ -10,8 +10,11 @@ public interface TreeWalker {
                 boolean isContainer(NodeRef ref);
         }
         public interface Callback {
-                void doWork(NodeRef node);
-                void startWalk(NodeRef node);
+            void doWork(NodeRef node);
+            void startWalk(NodeRef node);
+        }
+        public interface CallbackE extends Callback{
+            void endWalk();
         }
         void walk(NodeRef contextNodeRef,Navigator nav,Callback cb);
 }

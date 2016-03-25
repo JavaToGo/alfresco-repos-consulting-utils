@@ -7,4 +7,5 @@ public interface BulkUpdater {
 		public void executeUpdate(T item);
 	}
 	<T> int bulkUpdate(List<T> items,BulkUpdaterCallback<T> cb);
+	<T> int bulkUpdate(List<T> items,BulkUpdaterCallback<T> cb,int batch_size);
 }

@@ -65,6 +65,9 @@ public class TreeWalkerHelper implements TreeWalker {
             }
                 
         }
+        if (cb instanceof CallbackE) {
+        	((CallbackE) cb).endWalk();
+        }
         
         logger.debug("Processed " + itemCount + " items in " + containerCount + " containers");
 
