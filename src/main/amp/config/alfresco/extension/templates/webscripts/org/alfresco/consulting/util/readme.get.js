@@ -1,0 +1,1 @@
+model.readmeContent = consulting_util.getReadmeContent(url.templateArgs['moduleId']);

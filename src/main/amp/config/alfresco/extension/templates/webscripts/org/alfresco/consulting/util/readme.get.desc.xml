@@ -1,0 +1,8 @@
+<webscript>
+<shortname>README</shortname>
+<description>README</description>
+<family>Consulting Utils</family>
+<url>/org/alfresco/consulting/util/readme/{moduleId}</url>
+<format default="html">argument</format>
+<authentication>none</authentication>
+</webscript>

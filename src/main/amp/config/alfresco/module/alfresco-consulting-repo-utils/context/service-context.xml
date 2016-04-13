@@ -1,0 +1,129 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+    	
+    http://www.apache.org/licenses/LICENSE-2.0
+    	
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<beans>
+    
+    <bean id="${project.artifactId}.model.dictionaryBootstrap" parent="dictionaryModelBootstrap" depends-on="dictionaryBootstrap">
+        <property name="models">
+            <list>
+                <value>alfresco/module/${project.artifactId}/model/consultingUtilContentModel.xml</value>
+            </list>
+        </property>
+    </bean>
+
+   <!--  Unique Property Beans -->
+    <bean id="${artifactId}.dynamicConstraintIntitializer" class="org.alfresco.consulting.util.dynamic_constraints.impl.DynamicConstraintInitializer">
+        <property name="dynamicConstraintService">
+            <ref bean="${artifactId}.dynamicConstraintService"/>
+        </property>
+      <property name="serviceRegistry">
+         <ref bean="ServiceRegistry"/>
+      </property>
+    </bean>
+    
+    <bean id="${artifactId}.dynamicConstraintAttributeHelper" class="org.alfresco.consulting.util.dynamic_constraints.impl.DynamicConstraintAttributeHelper">
+      <property name="serviceRegistry">
+         <ref bean="ServiceRegistry"/>
+      </property>
+    </bean>
+    
+    <bean id="${artifactId}.dynamicConstraintService" class="org.alfresco.consulting.util.dynamic_constraints.impl.DynamicConstraintServiceNodeImpl">
+      <property name="serviceRegistry">
+         <ref bean="ServiceRegistry"/>
+      </property>
+      <property name="folderHierarchyHelper">
+         <ref bean="${artifactId}.folderHierarchyHelper"/>
+      </property>
+    </bean>
+    
+    <bean id="${artifactId}.dynamicConstraintServiceAttr" class="org.alfresco.consulting.util.dynamic_constraints.impl.DynamicConstraintServiceImpl">
+        <property name="attributeComponent">
+            <ref bean="${artifactId}.dynamicConstraintAttributeHelper"/>
+        </property>
+    </bean>
+
+       <bean id="${artifactId}.folderHierarchyHelper" class="org.alfresco.consulting.util.folder_hierarchy.impl.FolderHierarchyHelperImpl">
+        <property name="serviceRegistry">
+            <ref bean="ServiceRegistry"/>
+        </property>
+    </bean>
+   
+   <bean id="uniquePropertyManager" class="org.alfresco.consulting.util.unique_property.UniquePropertyManager">
+      <property name="serviceRegistry">
+         <ref bean="ServiceRegistry"/>
+      </property>
+   </bean>
+   <!--  We need a way to bootstrap  for now make a new bean and intisialize -->
+   <bean id="uniquePropertyHandler" class="org.alfresco.consulting.util.unique_property.UniquePropertyHandlerImpl">
+      <property name="serviceRegistry">
+         <ref bean="ServiceRegistry"/>
+      </property>
+      <property name="uniquePropertyManager">
+         <ref bean="uniquePropertyManager"/>
+      </property>	
+   </bean>
+   <bean id="uniquePropertyContentPolicyFactory" class="org.alfresco.consulting.util.unique_property.UniquePropertyContentPolicyFactory"  init-method="initialise">
+    	<property name="policyComponent">
+    		<ref bean="policyComponent"/>
+    	</property>
+      <property name="serviceRegistry">
+         <ref bean="ServiceRegistry"/>
+      </property>
+      <property name="uniquePropertyRegistry">
+         <ref bean="uniquePropertyHandler"/>
+      </property>
+      <property name="uniquePropertyHandler">
+         <ref bean="uniquePropertyHandler"/>
+      </property>
+   </bean>
+   <bean id="${artifactId}.ConsultingScriptApi" parent="baseJavaScriptExtension" class="org.alfresco.consulting.util.jscript.ConsultingScriptApi">
+        <property name="extensionName">
+            <value>consulting_util</value>
+        </property>
+        <property name="serviceRegistry">
+            <ref bean="ServiceRegistry"/>
+        </property>
+        <property name="uniquePropertyManager">
+            <ref bean="uniquePropertyManager"/>
+        </property>
+      <property name="dynamicConstraintService">
+         <ref bean="${artifactId}.dynamicConstraintService"/>
+      </property>
+    </bean>
+      <bean id="${artifactId}.fileFolderWalker" class="org.alfresco.consulting.util.tree_walker.impl.FileFolderTreeWalker">
+        <property name="serviceRegistry">
+            <ref bean="ServiceRegistry"/>
+        </property>
+    </bean>
+      <bean id="${artifactId}.fullTreeWalker" class="org.alfresco.consulting.util.tree_walker.impl.FullTreeWalker">
+        <property name="serviceRegistry">
+            <ref bean="ServiceRegistry"/>
+        </property>
+    </bean>
+      <bean id="${artifactId}.bulkUpdater" class="org.alfresco.consulting.util.transactions.impl.BulkUpdaterImpl">
+        <property name="serviceRegistry">
+            <ref bean="ServiceRegistry"/>
+        </property>
+    </bean>
+      <bean id="${artifactId}.nodeAttributesHelper" class="org.alfresco.consulting.util.attribute_service.NodeAttributesHelper">
+        <property name="serviceRegistry">
+            <ref bean="ServiceRegistry"/>
+        </property>
+    </bean>
+
+</beans>
