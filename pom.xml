@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.alfresco.consulting</groupId>
     <artifactId>alfresco-consulting-repo-utils</artifactId>
-    <version>0.5.0-SNAPSHOT</version>
+    <version>0.5.0</version>
     <name>alfresco-consulting-repo-utils Repository AMP project</name>
     <packaging>amp</packaging>
     <description>Manages the lifecycle of the alfresco-consulting-repo-utils Repository AMP (Alfresco Module Package)</description>
@@ -14,12 +14,12 @@
         <artifactId>alfresco-sdk-parent</artifactId>
         <version>2.0.0</version>
     </parent>
-    <repositories>
+    <!-- <repositories>
           <repository>
             <id>alfresco-private-repository</id>
             <url>https://artifacts.alfresco.com/nexus/content/groups/hotfix</url>
           </repository>
-     </repositories>
+     </repositories> -->
 
     <!-- 
        | SDK properties have sensible defaults in the SDK parent,
