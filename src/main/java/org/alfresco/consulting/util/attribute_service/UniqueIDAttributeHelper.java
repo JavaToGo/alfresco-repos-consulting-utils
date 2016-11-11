@@ -33,7 +33,7 @@ public abstract class UniqueIDAttributeHelper extends GenericAttributeHelper {
     }
     private long getMaxSequenceId(Serializable uniqueAttrName) {
         if (attributeService.exists(getAppId(), uniqueAttrName, MAX_ID_ATTR)) {
-            return (Integer) attributeService.getAttribute(getAppId(), uniqueAttrName, MAX_ID_ATTR);
+            return (Long) attributeService.getAttribute(getAppId(), uniqueAttrName, MAX_ID_ATTR);
         }
         return 0;
     }
