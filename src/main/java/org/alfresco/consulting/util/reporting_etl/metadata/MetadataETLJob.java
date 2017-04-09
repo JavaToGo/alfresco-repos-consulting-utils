@@ -1,13 +1,18 @@
 package org.alfresco.consulting.util.reporting_etl.metadata;
 
 import java.io.Serializable;
+import java.util.Calendar;
+import java.util.List;
 import java.util.Map;
 
 import org.alfresco.consulting.util.tracking.TrackingComponent;
 import org.alfresco.repo.audit.AuditComponent;
+import org.alfresco.repo.domain.node.Transaction;
 import org.alfresco.repo.domain.propval.PropertyValueDAO;
 import org.alfresco.service.cmr.audit.AuditQueryParameters;
 import org.alfresco.service.cmr.audit.AuditService.AuditQueryCallback;
+import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.cmr.repository.NodeRef.Status;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.quartz.Job;
@@ -21,6 +26,7 @@ public class MetadataETLJob implements Job {
 	private final static String MAX_RESULTS_KEY="maxResults";
 	private final static String METADATA_ETL_HANDLER_REGISTRY_KEY="metadataETLHandlerRegistry";
 	private final static String METADATA_ETL_TRACKER_KEY="metadataETLTracker";
+	private final static String TRACKING_COMPONENT_KEY="trackingComponent";
 	private static final Log logger = LogFactory.getLog(MetadataETLJob.class);
 	
 	private <T> T getBean(JobDataMap map,String key) {
@@ -31,12 +37,17 @@ public class MetadataETLJob implements Job {
         }
         return t;
 	}
+	private long now() {
+		return Calendar.getInstance().getTimeInMillis();
+	}
+
 
 	@Override
 	public void execute(JobExecutionContext ctx) throws JobExecutionException {
 		
 		MetadataETLHandlerRegistry metadataETLHandlerRegistry;
-		TrackingComponent metadataETLTracker;
+		MetadataETLTracker metadataETLTracker;
+		TrackingComponent trackingComponent;
 
 		JobDataMap map = ctx.getJobDetail().getJobDataMap();
 		if (map.containsKey(MAX_RESULTS_KEY)) {
@@ -45,15 +56,29 @@ public class MetadataETLJob implements Job {
 		
 		metadataETLTracker = getBean(map,METADATA_ETL_TRACKER_KEY);
 		metadataETLHandlerRegistry = getBean(map,METADATA_ETL_HANDLER_REGISTRY_KEY);
+		trackingComponent = getBean(map,TRACKING_COMPONENT_KEY);
 
-		//AuditQueryParameters parameters = new AuditQueryParameters();
-		//parameters.setFromId(metadataETLTracker.getLastProcessedEntry()+1);
+		long lastProcessedTransactionTime = metadataETLTracker.getLastProcessedTimeStamp();
 
 		if (logger.isDebugEnabled()) {
 			logger.debug(String.format("Max Results: %d", maxResults));
 		}
 		
-		//auditComponent.auditQuery(auditETLHandlerRegistry, parameters, maxResults);
+		List<Transaction> txns = trackingComponent.getTxnsByCommitTimeAscending(lastProcessedTransactionTime+1, now(), maxResults);
+		
+		for (Transaction txn : txns) {
+			List<Status> changes = trackingComponent.getTxnChanges(txn.getId());
+			long ts = txn.getCommitTimeMs();
+			for (MetadataETLHandler h : metadataETLHandlerRegistry.getHandlers().values()) {
+				String name = h.getETLHandlerName();
+				for (Status change : changes) {
+					NodeRef nodeRef = change.getNodeRef();
+					h.extractMetadataEntry(nodeRef, change.isDeleted(), txn.getId());
+				}
+				metadataETLTracker.updateLastProcessedTimeStamp(ts, h);
+			}
+			metadataETLTracker.updateLastProcessedTimeStamp(ts);
+		}
 	}
 
 }
