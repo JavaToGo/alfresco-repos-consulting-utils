@@ -105,6 +105,13 @@
          <ref bean="${artifactId}.dynamicConstraintService"/>
       </property>
     </bean>
+      
+    <bean id="${artifactId}.nodeAttributesHelper" class="org.alfresco.consulting.util.attribute_service.NodeAttributesHelper">
+        <property name="serviceRegistry">
+            <ref bean="ServiceRegistry"/>
+        </property>
+    </bean>
+
       <bean id="${artifactId}.fileFolderWalker" class="org.alfresco.consulting.util.tree_walker.impl.FileFolderTreeWalker">
         <property name="serviceRegistry">
             <ref bean="ServiceRegistry"/>
@@ -120,10 +127,216 @@
             <ref bean="ServiceRegistry"/>
         </property>
     </bean>
-      <bean id="${artifactId}.nodeAttributesHelper" class="org.alfresco.consulting.util.attribute_service.NodeAttributesHelper">
-        <property name="serviceRegistry">
-            <ref bean="ServiceRegistry"/>
+
+	<!-- ================= -->
+    <!-- Audit Purge Beans -->
+	<!-- ================= -->
+    
+    <bean id="${artifactId}.trimAuditComponent"
+		class="org.alfresco.consulting.util.audit.purge.TrimAuditComponent">
+		<property name="auditComponent">
+			<ref bean="auditComponent" />
+		</property>
+		<property name="serviceRegistry">
+			<ref bean="ServiceRegistry" />
+		</property>
+	</bean>
+    
+	<bean id="${artifactId}.trimAuditScriptApi" parent="baseJavaScriptExtension"
+		class="org.alfresco.consulting.util.audit.purge.TrimAuditScriptApi">
+		<property name="extensionName">
+			<value>trimAudit</value>
+		</property>
+		<property name="serviceRegistry">
+			<ref bean="ServiceRegistry" />
+		</property>
+		<property name="trimAuditComponent">
+			<ref bean="${artifactId}.trimAuditComponent" />
+		</property>
+	</bean>
+
+	<bean id="${artifactId}.trimAuditTrigger" class="org.alfresco.util.CronTriggerBean">
+		<property name="jobDetail">
+			<bean id="${artifactId}.trimAuditJobDetail" class="org.springframework.scheduling.quartz.JobDetailBean">
+				<property name="jobClass">
+					<value>org.alfresco.consulting.util.audit.purge.TrimAuditJob</value>
+				</property>
+				<property name="jobDataAsMap">
+					<map>
+						<entry key="keepSeconds">
+							<value>${trim.audit.keepSeconds}</value>
+						</entry>
+						<entry key="trimAuditApplicationNames">
+							<value>${trim.audit.applicationNames}</value>
+						</entry>
+						<entry key="trimAuditComponent">
+							<ref bean="${artifactId}.trimAuditComponent" />
+						</entry>
+					</map>
+				</property>
+			</bean>
+		</property>
+		<property name="scheduler">
+			<ref bean="schedulerFactory" />
+		</property>
+		<property name="cronExpression">
+			<value>${trim.audit.schedule}</value>
+		</property>
+	</bean>
+
+	<!-- =============== -->
+    <!-- Audit ETL Beans -->
+	<!-- =============== -->
+    
+	<bean id="${artifactId}.AuditETLTracker" class="org.alfresco.consulting.util.reporting_etl.audit.AuditETLTracker">
+		<property name="serviceRegistry" ref="ServiceRegistry" />
+	</bean>
+	<bean id="${artifactId}.AuditETLHandlerRegistry"
+		class="org.alfresco.consulting.util.reporting_etl.audit.AuditETLHandlerRegistryImpl">
+		<property name="auditETLTracker" ref="${artifactId}.AuditETLTracker" />
+	</bean>
+	<bean id="${artifactId}.AuditETLTrigger" class="org.alfresco.util.CronTriggerBean">
+		<property name="jobDetail">
+			<bean id="${artifactId}.AuditETLJobDetail" class="org.springframework.scheduling.quartz.JobDetailBean">
+				<property name="jobClass">
+					<value>org.alfresco.consulting.util.reporting_etl.audit.AuditETLJob</value>
+				</property>
+				<property name="jobDataAsMap">
+					<map>
+						<entry key="maxResults">
+							<value>${audit.etl.maxResults}</value>
+						</entry>
+						<entry key="auditETLHandlerRegistry">
+							<ref bean="${artifactId}.AuditETLHandlerRegistry" />
+						</entry>
+						<entry key="auditETLTracker">
+							<ref bean="${artifactId}.AuditETLTracker" />
+						</entry>
+						<entry key="auditComponent">
+							<ref bean="auditComponent" />
+						</entry>
+					</map>
+				</property>
+			</bean>
+		</property>
+		<property name="scheduler">
+			<ref bean="schedulerFactory" />
+		</property>
+		<property name="cronExpression">
+			<value>${audit.etl.schedule}</value>
+		</property>
+	</bean>
+	<bean id="${artifactId}.LoggingAuditETLHandler"
+		class="org.alfresco.consulting.util.reporting_etl.audit.LoggingAuditETLHandler">
+		<property name="auditETLHandlerRegistry">
+			<ref bean="${artifactId}.AuditETLHandlerRegistry" />
+		</property>
+        <property name="enabled">
+            <value>${etl.log.enabled}</value>
+        </property>
+	</bean>
+	
+	<!-- ====================== -->
+    <!-- DB Audit Example Beans -->
+	<!-- ====================== -->
+	
+	<!-- base config implementation that script extension beans extend from - for auto registration
+         as a global script with the ScriptService
+    ==== EXAMPLE of Abstract Parent Bean ====
+    <bean id="baseJavaScriptExtension" abstract="true" init-method="register">
+        <property name="processor">
+            <ref bean="javaScriptProcessor"/>
+        </property>
+    </bean>    
+	-->
+    
+	<bean id="${artifactId}.ExampleDBAuditETLHandler"
+		class="org.alfresco.consulting.util.reporting_etl.audit.ExampleDBAuditETLHandler">
+		<property name="auditETLHandlerRegistry">
+			<ref bean="${artifactId}.AuditETLHandlerRegistry" />
+		</property>
+		<property name="dataSource">
+			<ref bean="${artifactId}.AuditETLDataSource" />
+		</property>
+        <property name="enabled">
+            <value>${etl.db.enabled}</value>
+        </property>
+	</bean>	
+	<bean id="${artifactId}.AuditETLDataSource" class="org.alfresco.config.JndiObjectFactoryBean">
+        <property name="jndiName">
+            <value>java:comp/env/jdbc/AuditETLDataSource</value>
+        </property>
+        <property name="defaultObject">
+            <ref bean="${artifactId}.AuditETLDefaultDataSource" />
         </property>
     </bean>
-
+	<bean id="${artifactId}.AuditETLDefaultDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName">
+            <value>${etl.db.driver}</value>
+        </property>
+        <property name="url">
+            <value>${etl.db.url}</value>
+        </property>
+        <property name="username">
+            <value>${etl.db.username}</value>
+        </property>
+        <property name="password">
+            <value>${etl.db.password}</value>
+        </property>
+        <property name="initialSize" >
+            <value>${db.pool.initial}</value>
+        </property>
+        <property name="maxActive" >
+            <value>${db.pool.max}</value>
+        </property>
+        <property name="minIdle" >
+            <value>${db.pool.min}</value>
+        </property>
+        <property name="maxIdle" >
+            <value>${db.pool.idle}</value>
+        </property>
+        <property name="defaultAutoCommit" >
+            <value>false</value>
+        </property>
+        <property name="defaultTransactionIsolation" >
+            <value>${db.txn.isolation}</value>
+        </property>
+        <property name="maxWait" >
+            <value>${db.pool.wait.max}</value>
+        </property>
+        <property name="validationQuery" >
+            <value>${db.pool.validate.query}</value>
+        </property>
+        <property name="timeBetweenEvictionRunsMillis" >
+            <value>${db.pool.evict.interval}</value>
+        </property>
+        <property name="minEvictableIdleTimeMillis" >
+            <value>${db.pool.evict.idle.min}</value>
+        </property>
+        <property name="testOnBorrow" >
+            <value>${db.pool.validate.borrow}</value>
+        </property>
+        <property name="testOnReturn" >
+            <value>${db.pool.validate.return}</value>
+        </property>
+        <property name="testWhileIdle" >
+            <value>${db.pool.evict.validate}</value>
+        </property>
+        <property name="removeAbandoned" >
+            <value>${db.pool.abandoned.detect}</value>
+        </property>
+        <property name="removeAbandonedTimeout" >
+            <value>${db.pool.abandoned.time}</value>
+        </property>
+        <property name="poolPreparedStatements" >
+            <value>${db.pool.statements.enable}</value>
+        </property>
+        <property name="maxOpenPreparedStatements" >
+            <value>${db.pool.statements.max}</value>
+        </property>
+        <property name="logAbandoned" >
+            <value>${db.pool.abandoned.log}</value>
+        </property>
+    </bean>
+    
 </beans>
