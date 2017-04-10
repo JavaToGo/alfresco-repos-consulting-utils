@@ -59,6 +59,7 @@ public class MetadataETLJob implements Job {
 
 		if (logger.isDebugEnabled()) {
 			logger.debug(String.format("Max Results: %d", maxResults));
+			logger.debug(String.format("Last Processed Time: %d", lastProcessedTransactionTime));
 		}
 		
 		
