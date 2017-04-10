@@ -128,6 +128,7 @@
         </property>
     </bean>
     <bean id="${artifactId}.trackingComponent" class="org.alfresco.consulting.util.tracking.impl.TrackingComponentImpl">
+		<property name="serviceRegistry" ref="ServiceRegistry" />
         <property name="nodeDAO" ref="nodeDAO" />
     </bean>
 
@@ -239,9 +240,9 @@
         </property>
 	</bean>
 	
-	<!-- =============== -->
-    <!-- Audit ETL Beans -->
-	<!-- =============== -->
+	<!-- ================== -->
+    <!-- Metadata ETL Beans -->
+	<!-- ================== -->
     
 	<bean id="${artifactId}.MetadataETLTracker" class="org.alfresco.consulting.util.reporting_etl.metadata.MetadataETLTracker">
 		<property name="serviceRegistry" ref="ServiceRegistry" />
@@ -251,7 +252,7 @@
 	</bean>
 	<bean id="${artifactId}.MetadataETLTrigger" class="org.alfresco.util.CronTriggerBean">
 		<property name="jobDetail">
-			<bean id="${artifactId}.AuditETLJobDetail" class="org.springframework.scheduling.quartz.JobDetailBean">
+			<bean id="${artifactId}.MetadataETLJobDetail" class="org.springframework.scheduling.quartz.JobDetailBean">
 				<property name="jobClass">
 					<value>org.alfresco.consulting.util.reporting_etl.metadata.MetadataETLJob</value>
 				</property>
@@ -267,7 +268,7 @@
 							<ref bean="${artifactId}.MetadataETLTracker" />
 						</entry>
 						<entry key="trackingComponent">
-							<ref bean="auditComponent" />
+							<ref bean="${artifactId}.trackingComponent" />
 						</entry>
 					</map>
 				</property>
