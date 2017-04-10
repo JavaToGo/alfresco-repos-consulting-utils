@@ -28,8 +28,22 @@ This is an experimental pre-alpha release and should only be used under the dire
 * Bad Node Audit
 * Bulk Exporter
 
+# Documentation
 
-## Folder Hierarchy Helper
+## Audit Cleanup
+
+Below are the properties that need to be set to control the audit clean up
+
+```
+# Run at 11:59:59 PM on December 31, 2099 - essentially never
+trim.audit.schedule=59 59 23 31 12 ? 2099
+# Keep 1 week of Audit
+trim.audit.keepSeconds=604800
+# Purge the following audit applications
+trim.audit.applicationNames=alfresco-access,CMISChangeLog
+```
+
+I would recommend running the clean up daily (or a few times a day if necessary)
 
 # 0.6.0 Release Notes
 
