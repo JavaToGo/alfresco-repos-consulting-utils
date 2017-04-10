@@ -250,18 +250,6 @@
     </bean>    
 	-->
     
-	<bean id="${artifactId}.ExampleDBAuditETLHandler"
-		class="org.alfresco.consulting.util.reporting_etl.audit.ExampleDBAuditETLHandler">
-		<property name="auditETLHandlerRegistry">
-			<ref bean="${artifactId}.AuditETLHandlerRegistry" />
-		</property>
-		<property name="dataSource">
-			<ref bean="${artifactId}.AuditETLDataSource" />
-		</property>
-        <property name="enabled">
-            <value>${etl.db.enabled}</value>
-        </property>
-	</bean>	
 	<bean id="${artifactId}.AuditETLDataSource" class="org.alfresco.config.JndiObjectFactoryBean">
         <property name="jndiName">
             <value>java:comp/env/jdbc/AuditETLDataSource</value>
