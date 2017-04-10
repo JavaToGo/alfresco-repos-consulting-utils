@@ -11,7 +11,6 @@ import org.apache.commons.logging.LogFactory;
 
 public class MetadataETLHandlerRegistryImpl implements MetadataETLHandlerRegistry {
 	
-	Map<String,Set<MetadataETLHandler>> handlerCache = new HashMap<String,Set<MetadataETLHandler>>();
 	Map<String,MetadataETLHandler> handlers = new HashMap<String,MetadataETLHandler> ();
 
 	private static final Log logger = LogFactory.getLog(MetadataETLHandlerRegistryImpl.class);
@@ -20,17 +19,13 @@ public class MetadataETLHandlerRegistryImpl implements MetadataETLHandlerRegistr
 	@Override
 	public void registerHandler(MetadataETLHandler h) {
 		handlers.put(h.getETLHandlerName(),h);
-		//Clear Cache when adding new hander
-		synchronized(this) {
-		    handlerCache.clear();
-		}
 	}
 
 
 	@Override
 	public Map<String, MetadataETLHandler> getHandlers() {
 		// TODO Auto-generated method stub
-		return null;
+		return handlers;
 	}
 	
 
