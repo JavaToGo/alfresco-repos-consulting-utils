@@ -250,15 +250,15 @@
     </bean>    
 	-->
     
-	<bean id="${artifactId}.AuditETLDataSource" class="org.alfresco.config.JndiObjectFactoryBean">
+	<bean id="${artifactId}.ReportingETLDataSource" class="org.alfresco.config.JndiObjectFactoryBean">
         <property name="jndiName">
-            <value>java:comp/env/jdbc/AuditETLDataSource</value>
+            <value>java:comp/env/jdbc/ReportingETLDataSource</value>
         </property>
         <property name="defaultObject">
-            <ref bean="${artifactId}.AuditETLDefaultDataSource" />
+            <ref bean="${artifactId}.ReportingETLDefaultDataSource" />
         </property>
     </bean>
-	<bean id="${artifactId}.AuditETLDefaultDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+	<bean id="${artifactId}.ReportingETLDefaultDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
         <property name="driverClassName">
             <value>${etl.db.driver}</value>
         </property>
