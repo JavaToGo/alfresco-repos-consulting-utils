@@ -122,10 +122,13 @@
             <ref bean="ServiceRegistry"/>
         </property>
     </bean>
-      <bean id="${artifactId}.bulkUpdater" class="org.alfresco.consulting.util.transactions.impl.BulkUpdaterImpl">
+    <bean id="${artifactId}.bulkUpdater" class="org.alfresco.consulting.util.transactions.impl.BulkUpdaterImpl">
         <property name="serviceRegistry">
             <ref bean="ServiceRegistry"/>
         </property>
+    </bean>
+    <bean id="${artifactId}.trackingComponent" class="org.alfresco.consulting.util.tracking.impl.TrackingComponentImpl">
+        <property name="nodeDAO" ref="nodeDAO" />
     </bean>
 
 	<!-- ================= -->
@@ -236,8 +239,61 @@
         </property>
 	</bean>
 	
+	<!-- =============== -->
+    <!-- Audit ETL Beans -->
+	<!-- =============== -->
+    
+	<bean id="${artifactId}.MetadataETLTracker" class="org.alfresco.consulting.util.reporting_etl.metadata.MetadataETLTracker">
+		<property name="serviceRegistry" ref="ServiceRegistry" />
+	</bean>
+	<bean id="${artifactId}.MetadataETLHandlerRegistry"
+		class="org.alfresco.consulting.util.reporting_etl.metadata.MetadataETLHandlerRegistryImpl">
+	</bean>
+	<bean id="${artifactId}.MetadataETLTrigger" class="org.alfresco.util.CronTriggerBean">
+		<property name="jobDetail">
+			<bean id="${artifactId}.AuditETLJobDetail" class="org.springframework.scheduling.quartz.JobDetailBean">
+				<property name="jobClass">
+					<value>org.alfresco.consulting.util.reporting_etl.metadata.MetadataETLJob</value>
+				</property>
+				<property name="jobDataAsMap">
+					<map>
+						<entry key="maxResults">
+							<value>${metadata.etl.maxResults}</value>
+						</entry>
+						<entry key="metadataETLHandlerRegistry">
+							<ref bean="${artifactId}.MetadataETLHandlerRegistry" />
+						</entry>
+						<entry key="metadataETLTracker">
+							<ref bean="${artifactId}.MetadataETLTracker" />
+						</entry>
+						<entry key="trackingComponent">
+							<ref bean="auditComponent" />
+						</entry>
+					</map>
+				</property>
+			</bean>
+		</property>
+		<property name="scheduler">
+			<ref bean="schedulerFactory" />
+		</property>
+		<property name="cronExpression">
+			<value>${metadata.etl.schedule}</value>
+		</property>
+	</bean>
+	<bean id="${artifactId}.LoggingMetadataETLHandler"
+		class="org.alfresco.consulting.util.reporting_etl.metadata.LoggingMetadataETLHandler">
+		<property name="serviceRegistry" ref="ServiceRegistry" />
+		<property name="metadataETLHandlerRegistry">
+			<ref bean="${artifactId}.MetadataETLHandlerRegistry" />
+		</property>
+        <property name="enabled">
+            <value>${etl.log.enabled}</value>
+        </property>
+	</bean>
+	
+	
 	<!-- ====================== -->
-    <!-- DB Audit Example Beans -->
+    <!-- DB Reporting Example Beans -->
 	<!-- ====================== -->
 	
 	<!-- base config implementation that script extension beans extend from - for auto registration

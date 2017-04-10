@@ -16,7 +16,7 @@ public abstract class MetadataETLHandlerBase implements MetadataETLHandler  {
 	private ServiceRegistry serviceRegistry;
 	private NodeService nodeService;
 	
-	public void setAuditETLHandlerRegistry(MetadataETLHandlerRegistry metadataETLHandlerRegistry) {
+	public void setMetadataETLHandlerRegistry(MetadataETLHandlerRegistry metadataETLHandlerRegistry) {
 		this.metadataETLHandlerRegistry = metadataETLHandlerRegistry;
 		this.metadataETLHandlerRegistry.registerHandler(this);
 	}

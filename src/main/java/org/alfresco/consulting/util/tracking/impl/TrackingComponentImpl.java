@@ -20,7 +20,6 @@ import org.alfresco.service.cmr.search.SearchService;
  * Some code modeled after org.alfresco.repo.solr.SOLRTrackingComponentImpl
  */
 public class TrackingComponentImpl implements TrackingComponent {
-	private ServiceRegistry serviceRegistry;
 	private NodeDAO nodeDAO;
 
 	public void setNodeDAO(NodeDAO nodeDAO) {
