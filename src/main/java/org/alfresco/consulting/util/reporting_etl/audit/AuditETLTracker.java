@@ -21,6 +21,9 @@ public class AuditETLTracker {
 		this.attributeService = serviceRegistry.getAttributeService();
 	}
 
+	public void resetLastProcessedEntry() {
+		attributeService.removeAttributes(getETLBaseAppId());
+	}
 	public void updateLastProcessedEntry(Long entryId) {
 		// TODO Sort out if we need to store this at multiple levels
 		attributeService.setAttribute(entryId, getETLBaseAppId());

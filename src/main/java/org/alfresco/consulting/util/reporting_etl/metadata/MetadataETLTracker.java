@@ -21,6 +21,10 @@ public class MetadataETLTracker {
 		this.attributeService = serviceRegistry.getAttributeService();
 	}
 
+	public void resetLastProcessedTimeStamp() {
+		attributeService.removeAttributes(getETLBaseAppId());
+	}
+
 	public void updateLastProcessedTimeStamp(Long ts) {
 		// TODO Sort out if we need to store this at multiple levels
 		attributeService.setAttribute(ts, getETLBaseAppId());

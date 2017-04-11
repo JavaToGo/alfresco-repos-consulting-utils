@@ -8,6 +8,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.alfresco.consulting.util.dynamic_constraints.DynamicConstraintService;
+import org.alfresco.consulting.util.reporting_etl.audit.AuditETLHandler;
+import org.alfresco.consulting.util.reporting_etl.audit.AuditETLTracker;
+import org.alfresco.consulting.util.reporting_etl.metadata.MetadataETLTracker;
 import org.alfresco.consulting.util.unique_property.UniquePropertyManager;
 import org.alfresco.repo.jscript.BaseScopableProcessorExtension;
 import org.alfresco.repo.jscript.ScriptNode;
@@ -31,17 +34,51 @@ public class ConsultingScriptApi extends BaseScopableProcessorExtension {
 	private UniquePropertyManager uniquePropertyManager;
 	private AttributeService attributeService;
 	private NamespaceService namespaceService;
+	private MetadataETLTracker metadataETLTracker;
+	private AuditETLTracker auditETLTracker;
 
 	private DynamicConstraintService dynamicConstraintService;
 	
 	private QName resolveToQName(String qname) {
 		return QName.resolveToQName(namespaceService, qname);
 	}
+
+	//TODO: Add Readme
+	public void setServiceRegistry(ServiceRegistry serviceRegistry) {
+		this.serviceRegistry = serviceRegistry;
+		this.dictionaryService = this.serviceRegistry.getDictionaryService();
+		this.attributeService = this.serviceRegistry.getAttributeService();
+		this.namespaceService = this.serviceRegistry.getNamespaceService();
+	}
+    public void setMetadataETLTracker(MetadataETLTracker metadataETLTracker) {
+		this.metadataETLTracker = metadataETLTracker;
+	}
+
+	public void setAuditETLTracker(AuditETLTracker auditETLTracker) {
+		this.auditETLTracker = auditETLTracker;
+	}
 	
 	public void setDynamicConstraintService(
 			DynamicConstraintService dynamicConstraintService) {
 		this.dynamicConstraintService = dynamicConstraintService;
 	}
+	
+	// Metadata Reporting Methods
+	public void resetLastProcessedTimeStamp() {
+		metadataETLTracker.resetLastProcessedTimeStamp();
+	}
+	public long getLastProcessedTimeStamp() {
+		return metadataETLTracker.getLastProcessedTimeStamp();
+	}
+	
+	// Audit Reporting Methods
+	public void resetLastProcessedEntry() {
+		auditETLTracker.resetLastProcessedEntry();
+	}
+	public long getLastProcessedEntry() {
+		return auditETLTracker.getLastProcessedEntry();
+	}
+	
 	// Dynamic Constraint Methods
 	public void createListConstraint(String constraintName,String dataType) {
 		dynamicConstraintService.createListConstraint(resolveToQName( constraintName), resolveToQName( dataType));
@@ -90,14 +127,8 @@ public class ConsultingScriptApi extends BaseScopableProcessorExtension {
 		
 	}*/
 
-	//TODO: Add Readme
-	public void setServiceRegistry(ServiceRegistry serviceRegistry) {
-		this.serviceRegistry = serviceRegistry;
-		this.dictionaryService = this.serviceRegistry.getDictionaryService();
-		this.attributeService = this.serviceRegistry.getAttributeService();
-		this.namespaceService = this.serviceRegistry.getNamespaceService();
-	}
-    public String getResourceContent(String path)  {
+
+	public String getResourceContent(String path)  {
         InputStream is =this.getClass().getResourceAsStream(path);
         String content = "";
         try {

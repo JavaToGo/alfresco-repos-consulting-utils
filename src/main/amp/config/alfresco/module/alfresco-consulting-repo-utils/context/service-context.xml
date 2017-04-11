@@ -101,9 +101,11 @@
         <property name="uniquePropertyManager">
             <ref bean="uniquePropertyManager"/>
         </property>
-      <property name="dynamicConstraintService">
-         <ref bean="${artifactId}.dynamicConstraintService"/>
-      </property>
+      	<property name="dynamicConstraintService">
+         	<ref bean="${artifactId}.dynamicConstraintService"/>
+      	</property>
+		<property name="auditETLTracker" ref="${artifactId}.AuditETLTracker" />
+		<property name="metadataETLTracker" ref="${artifactId}.MetadataETLTracker" />
     </bean>
       
     <bean id="${artifactId}.nodeAttributesHelper" class="org.alfresco.consulting.util.attribute_service.NodeAttributesHelper">
