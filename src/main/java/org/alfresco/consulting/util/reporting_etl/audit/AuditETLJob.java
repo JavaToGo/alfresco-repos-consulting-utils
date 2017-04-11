@@ -16,7 +16,7 @@ import org.quartz.JobExecutionException;
 
 public class AuditETLJob implements Job {
 	
-	int maxResults = 10000;
+	int maxResults = 100;
 	private final static String MAX_RESULTS_KEY="maxResults";
 	private final static String AUDIT_ETL_HANDLER_REGISTRY_KEY="auditETLHandlerRegistry";
 	private final static String AUDIT_ETL_TRACKER_KEY="auditETLTracker";

@@ -24,7 +24,7 @@ import org.quartz.JobExecutionException;
 
 public class MetadataETLJob implements Job {
 	
-	int maxResults = 10000;
+	int maxResults = 100;
 	private final static String MAX_RESULTS_KEY="maxResults";
 	private final static String METADATA_ETL_HANDLER_REGISTRY_KEY="metadataETLHandlerRegistry";
 	private final static String METADATA_ETL_TRACKER_KEY="metadataETLTracker";
