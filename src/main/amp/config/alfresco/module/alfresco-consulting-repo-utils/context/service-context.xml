@@ -212,6 +212,9 @@
 						<entry key="maxResults">
 							<value>${audit.etl.maxResults}</value>
 						</entry>
+						<entry key="ServiceRegistry">
+							<ref bean="ServiceRegistry" />
+						</entry>
 						<entry key="auditETLHandlerRegistry">
 							<ref bean="${artifactId}.AuditETLHandlerRegistry" />
 						</entry>
@@ -262,6 +265,9 @@
 					<map>
 						<entry key="maxResults">
 							<value>${metadata.etl.maxResults}</value>
+						</entry>
+						<entry key="ServiceRegistry">
+							<ref bean="ServiceRegistry" />
 						</entry>
 						<entry key="metadataETLHandlerRegistry">
 							<ref bean="${artifactId}.MetadataETLHandlerRegistry" />

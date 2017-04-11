@@ -3,10 +3,14 @@ package org.alfresco.consulting.util.reporting_etl.audit;
 import java.io.Serializable;
 import java.util.Map;
 
+import org.alfresco.consulting.util.ConsultingUtilsConstants;
+import org.alfresco.consulting.util.reporting_etl.AbstractBaseETLJob;
+import org.alfresco.consulting.util.reporting_etl.metadata.MetadataETLJob;
 import org.alfresco.repo.audit.AuditComponent;
 import org.alfresco.repo.domain.propval.PropertyValueDAO;
 import org.alfresco.service.cmr.audit.AuditQueryParameters;
 import org.alfresco.service.cmr.audit.AuditService.AuditQueryCallback;
+import org.alfresco.service.namespace.QName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.quartz.Job;
@@ -14,7 +18,7 @@ import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
-public class AuditETLJob implements Job {
+public class AuditETLJob  extends AbstractBaseETLJob {
 	
 	int maxResults = 100;
 	private final static String MAX_RESULTS_KEY="maxResults";
@@ -23,17 +27,15 @@ public class AuditETLJob implements Job {
 	private final static String AUDIT_COMPONENT_KEY="auditComponent";
 	private static final Log logger = LogFactory.getLog(AuditETLJob.class);
 	
-	private <T> T getBean(JobDataMap map,String key) {
-        T t = (T) map.get(key);
-        if (t == null)
-        {
-            throw new IllegalArgumentException(key + " in job data map was null");
-        }
-        return t;
-	}
 
 	@Override
-	public void execute(JobExecutionContext ctx) throws JobExecutionException {
+	protected QName getLockName() {
+		return QName.createQName(ConsultingUtilsConstants.CONSULTING_UTILS_MODEL_1_0_URI, AuditETLJob.class.getCanonicalName());
+	}
+	@Override
+	protected void executeInt(JobExecutionContext ctx, long endTime) throws JobExecutionException {
+		
+		//TODO: Add endTime to Query parameters
 		
 		AuditETLHandlerRegistry auditETLHandlerRegistry;
 		AuditETLTracker auditETLTracker;

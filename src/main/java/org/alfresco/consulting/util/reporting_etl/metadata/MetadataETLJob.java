@@ -5,6 +5,8 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
+import org.alfresco.consulting.util.ConsultingUtilsConstants;
+import org.alfresco.consulting.util.reporting_etl.AbstractBaseETLJob;
 import org.alfresco.consulting.util.tracking.TrackingComponent;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.audit.AuditComponent;
@@ -15,6 +17,7 @@ import org.alfresco.service.cmr.audit.AuditQueryParameters;
 import org.alfresco.service.cmr.audit.AuditService.AuditQueryCallback;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeRef.Status;
+import org.alfresco.service.namespace.QName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.quartz.Job;
@@ -22,7 +25,7 @@ import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
-public class MetadataETLJob implements Job {
+public class MetadataETLJob extends AbstractBaseETLJob {
 	
 	int maxResults = 100;
 	private final static String MAX_RESULTS_KEY="maxResults";
@@ -31,21 +34,15 @@ public class MetadataETLJob implements Job {
 	private final static String TRACKING_COMPONENT_KEY="trackingComponent";
 	private static final Log logger = LogFactory.getLog(MetadataETLJob.class);
 	
-	private <T> T getBean(JobDataMap map,String key) {
-        T t = (T) map.get(key);
-        if (t == null)
-        {
-            throw new IllegalArgumentException(key + " in job data map was null");
-        }
-        return t;
-	}
-	private long now() {
-		return Calendar.getInstance().getTimeInMillis();
+	
+	@Override
+	protected QName getLockName() {
+		return QName.createQName(ConsultingUtilsConstants.CONSULTING_UTILS_MODEL_1_0_URI, MetadataETLJob.class.getCanonicalName());
 	}
 
 
 	@Override
-	public void execute(JobExecutionContext ctx) throws JobExecutionException {
+	protected void executeInt(JobExecutionContext ctx,final long endTime) throws JobExecutionException {
 
 		JobDataMap map = ctx.getJobDetail().getJobDataMap();
 		if (map.containsKey(MAX_RESULTS_KEY)) {
@@ -80,6 +77,10 @@ public class MetadataETLJob implements Job {
 						metadataETLTracker.updateLastProcessedTimeStamp(ts, h);
 					}
 					metadataETLTracker.updateLastProcessedTimeStamp(ts);
+					if (now() > endTime) {
+						break;
+					}
+
 				}
 				return null;
 			}
