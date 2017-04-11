@@ -21,7 +21,7 @@ import org.springframework.context.ApplicationContext;
 
 public abstract class AbstractBaseETLJob implements Job, JobLockRefreshCallback {
 
-	private static final Log logger = LogFactory.getLog(MetadataETLJob.class);
+	private static final Log logger = LogFactory.getLog(AbstractBaseETLJob.class);
 	private static final String ETL_JOB_TIMEOUT_KEY = "etlJobTimeout";
 	private static final String ETL_SERVICE_REGISTRY = "ServiceRegistry";
 	private String lockToken;
