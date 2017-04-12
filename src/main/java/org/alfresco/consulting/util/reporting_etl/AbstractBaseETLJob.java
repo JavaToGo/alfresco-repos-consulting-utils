@@ -65,10 +65,15 @@ public abstract class AbstractBaseETLJob implements Job, JobLockRefreshCallback 
 		}
 		
 		long endTime=now() + timeout;
+		
+		try {
 
 		executeInt(ctx,endTime);
-		
-		releaseLock();
+		} catch (RuntimeException e) {
+			logger.debug("ERROR Processing Job", e);
+		} finally {		
+			releaseLock();
+		}
 	}
     private void acquireLock()
     {
