@@ -74,6 +74,7 @@ public abstract class AbstractBaseTrackingJob implements Job, JobLockRefreshCall
 	}
 
 	abstract protected String getJobAppName();
+	abstract protected void jobInit(JobExecutionContext ctx);
 	abstract protected void processTxnNode(Status status,Transaction txn);
 	protected long now() {
 		return Calendar.getInstance().getTimeInMillis();
@@ -86,7 +87,7 @@ public abstract class AbstractBaseTrackingJob implements Job, JobLockRefreshCall
         }
         return t;
 	}
-	private void executeInt(JobExecutionContext ctx,final long endTime) throws JobExecutionException {
+	private void executeInt(final JobExecutionContext ctx,final long endTime) throws JobExecutionException {
 
 		JobDataMap map = ctx.getJobDetail().getJobDataMap();
 		if (map.containsKey(MAX_RESULTS_KEY)) {
@@ -101,6 +102,8 @@ public abstract class AbstractBaseTrackingJob implements Job, JobLockRefreshCall
 			logger.debug(String.format("Last Processed Time: %d", lastProcessedTransactionTime));
 		}
 		
+		//Initialize with Job Context
+		jobInit(ctx);
 		
 		AuthenticationUtil.runAsSystem(new AuthenticationUtil.RunAsWork<Object>() {
 
@@ -111,6 +114,7 @@ public abstract class AbstractBaseTrackingJob implements Job, JobLockRefreshCall
 					List<Status> changes = trackingComponent.getTxnChanges(txn.getId());
 					long ts = txn.getCommitTimeMs();
 					for (Status change : changes) {
+						// Process each node
 						processTxnNode(change,txn);
 					}
 					updateLastProcessedTimeStamp(ts);
