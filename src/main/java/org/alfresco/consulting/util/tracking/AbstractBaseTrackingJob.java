@@ -43,7 +43,7 @@ public abstract class AbstractBaseTrackingJob implements Job, JobLockRefreshCall
 	private boolean active;
 	private long lockDuration;
 	private boolean cancelFlag=false;
-	private ServiceRegistry serviceRegistry;
+	protected ServiceRegistry serviceRegistry;
 	private AttributeService attributeService;
 	private JobLockService jobLockService;
 
